@@ -8,5 +8,11 @@
 
 - This worm replcator is created by [Nghia Le][nghiaruoi-github] and [Griffin Ryan][griffinryan-github].
 
+---
+# TO-DO:
+
+- The method exec(String) from the type Runtime is deprecated since version 18 as used in the Runtime.getRuntime("javac " + "Worm2" + ".java") and other similar calls.
+---
+
 [griffinryan-github]: https://github.com/griffinryan
 [nghiaruoi-github]: https://github.com/nghiaruoi
