@@ -5,7 +5,7 @@ public class Worm {
         int replicationCount = args.length > 0 ? Integer.parseInt(args[0]) : 5;
 
         if (replicationCount > 0) {
-            String newFileName = "Worm" + ".java";
+            String newFileName = "Worm" + replicationCount + ".java";
             String newDirectoryName = "src/dir" + replicationCount;
             File newDir = new File(newDirectoryName);
             if (!newDir.exists()) {
@@ -26,10 +26,10 @@ public class Worm {
             String newArgs = String.valueOf(replicationCount - 1);
 
             // Compile the new file
-            Runtime.getRuntime().exec("javac " + newFile.getPath());
+            Runtime.getRuntime().exec("javac " + "src/dir" + replicationCount + "/" + newFileName);
 
             // Execute the new file
-            Runtime.getRuntime().exec("java -cp " + newDirectoryName + " Worm ");
+            Runtime.getRuntime().exec("java " + "src/dir" + replicationCount + "/" + newFileName);
         }
     }
 }
