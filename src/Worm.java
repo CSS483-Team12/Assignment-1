@@ -1,58 +1,70 @@
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Worm {
-    int numOfTimes;
-    String[] array = {
-            "public class Worm2 {",
-            "int numOfTimes",
-            "String[] array ={",
-            "};",
-            "public static void main(String[] args){",
-            "Worm worm = new Worm();",
-            "char quote = 34;",
-            "System.out.println(worm.array[0]);",
-            "System.out.println(worm.array[1]+'='+ (worm.numOfTimes+1)+';');",
-            "System.out.println(worm.array[2]);",
-            "for (int i = 0; i < worm.array.length; i++) {",
-            "System.out.println(quote+worm.array[i]+quote+',');",
-            "}",
-            "for (int i = 2; i <worm.array.length; i++) {",
-            " System.out.println(worm.array[i]);",
-            "}",
-            "}",
-            "}",
-    };
 
-    public static void main(String[] args) {
-        Worm worm = new Worm();
-        char quote = 34;
-        if (worm.numOfTimes < 3) {
-            try {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        int numOfTimes = args.length > 0 ? Integer.parseInt(args[0]) : 5;
 
-                PrintWriter myWriter = new PrintWriter("src/Worm2.java");
-                myWriter.println(worm.array[0]);
-                myWriter.println(worm.array[1] + '=' + (worm.numOfTimes + 1) + ';');
-                myWriter.println(worm.array[2]);
-                for (int i = 0; i < worm.array.length; i++) {
-                    myWriter.println(quote + worm.array[i] + quote + ',');
-                }
-                for (int i = 3; i < worm.array.length; i++) {
-                    myWriter.println(worm.array[i]);
-                }
-                myWriter.close();
-                Process i = Runtime.getRuntime().exec("javac " + "Worm2" + ".java");
-                i.waitFor();
-                i = Runtime.getRuntime().exec("java " + "Worm2");
+        List<String> sourceCode = fillSourceList();
 
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        if (numOfTimes > 0) {
+            String className = "Worm" + numOfTimes;
+            String newFileName = className + ".java";
+            String newDirectoryName = "src/dir" + numOfTimes;
+            File newDir = new File(newDirectoryName);
+            if (!newDir.exists()) {
+                newDir.mkdirs();
             }
+
+            File newFile = new File(newDir, newFileName);
+            // List<String> sourceCode = readSourceCode("src/Worm.java"); // Assuming this method returns the source code of Worm.java
+
+            try (PrintWriter writer = new PrintWriter(new FileWriter(newFile))) {
+                for (String line : sourceCode) {
+                    line = line.replace("CLASS_NAME_PLACEHOLDER", className);
+                    writer.println(line);
+                }
+            }
+
+            // Compile the new file
+            Process compileProcess = Runtime.getRuntime().exec("javac " + newFile.getPath());
+            compileProcess.waitFor(); // Wait for compilation to complete
+
+            // Execute the new file with decremented numOfTimes
+            Process execProcess = Runtime.getRuntime().exec("java -cp " + newDirectoryName + " " + className + " " + (numOfTimes - 1));
+            execProcess.waitFor(); // Wait for execution to complete
         }
     }
+
+    private static List<String> readSourceCode(String fileName) throws IOException {
+        List<String> lines = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        }
+        return lines;
+    }
+
+    private static List<String> fillSourceList() {
+        List<String> sourceCode = null;
+        try {
+            sourceCode = readSourceCode("src/Worm.java");
+            for (int i = 0; i < sourceCode.size(); i++) {
+                if (sourceCode.get(i).contains("public class Worm")) {
+                    // Replace only the class name part
+                    String modifiedLine = sourceCode.get(i).replace("Worm", "CLASS_NAME_PLACEHOLDER");
+                    sourceCode.set(i, modifiedLine);
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sourceCode;
+    }
+
 }
