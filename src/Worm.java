@@ -8,27 +8,22 @@ public class Worm {
     static String[] sourceArray;
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        int numOfTimes = args.length > 0 ? Integer.parseInt(args[0]) : 5;
 
-        String currentFileName = "src/Worm.java"; // Adjust the path if necessary
-        List<String> sourceCodeList = readSourceCode(currentFileName);
-        sourceArray = sourceCodeList.toArray(new String[0]);
-
-        Worm worm = new Worm();
-        worm.numOfTimes = args.length > 0 ? Integer.parseInt(args[0]) : 5;
-
-        if (worm.numOfTimes > 0) {
-            String className = "Worm" + worm.numOfTimes;
+        if (numOfTimes > 0) {
+            String className = "Worm" + numOfTimes;
             String newFileName = className + ".java";
-            String newDirectoryName = "src/dir" + worm.numOfTimes;
+            String newDirectoryName = "src/dir" + numOfTimes;
             File newDir = new File(newDirectoryName);
             if (!newDir.exists()) {
                 newDir.mkdirs();
             }
 
             File newFile = new File(newDir, newFileName);
+            List<String> sourceCode = readSourceCode("src/Worm.java"); // Assuming this method returns the source code of Worm.java
+
             try (PrintWriter writer = new PrintWriter(new FileWriter(newFile))) {
-                for (String line : sourceArray) {
-                    // Replace class name in each line
+                for (String line : sourceCode) {
                     line = line.replace("public class Worm", "public class " + className);
                     writer.println(line);
                 }
@@ -36,11 +31,11 @@ public class Worm {
 
             // Compile the new file
             Process compileProcess = Runtime.getRuntime().exec("javac " + newFile.getPath());
-            compileProcess.waitFor();
+            compileProcess.waitFor(); // Wait for compilation to complete
 
-            // Execute the new file
-            Process execProcess = Runtime.getRuntime().exec("java -cp " + newDirectoryName + " " + className + " " + (worm.numOfTimes - 1));
-            execProcess.waitFor();
+            // Execute the new file with decremented numOfTimes
+            Process execProcess = Runtime.getRuntime().exec("java -cp " + newDirectoryName + " " + className + " " + (numOfTimes - 1));
+            execProcess.waitFor(); // Wait for execution to complete
         }
     }
 
